@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cozy Aesthetic Photo Booth ✨</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Sacramento&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pastelPink: '#FFF0F5',
+                        roseGold: '#B76E79',
+                        softBlush: '#FFB6C1',
+                        cozyCream: '#FAF0E6',
+                        girlyPurple: '#E6E6FA',
+                        dustyRose: '#D8A7B1',
+                        accentGold: '#E5C158',
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        cursive: ['Sacramento', 'cursive'],
+                        fun: ['Fredoka', 'sans-serif'],
+                    },
+                    animation: {
+                        'float-slow': 'float 6s ease-in-out infinite',
+                        'sparkle': 'sparkle 2s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'shutter-flash': 'flash 0.4s ease-out forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-12px) rotate(5deg)' },
+                        },
+                        sparkle: {
+                            '0%, 100%': { opacity: '0.3', transform: 'scale(0.8)' },
+                            '50%': { opacity: '1', transform: 'scale(1.2)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(255, 182, 193, 0.6)' },
+                            '50%': { boxShadow: '0 0 30px rgba(255, 182, 193, 0.9)' },
+                        },
+                        flash: {
+                            '0%': { opacity: '0' },
+                            '20%': { opacity: '1' },
+                            '100%': { opacity: '0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFF0F5;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FFB6C1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #B76E79;
+        }
+
+        /* Glassmorphism components */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 30px -5px rgba(216, 167, 177, 0.2);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+        }
+
+        /* Live Camera Filters */
+        .filter-normal { filter: none; }
+        .filter-softglow { filter: brightness(1.08) contrast(0.95) saturate(1.1) blur(0.3px) sepia(0.08); }
+        .filter-vintage { filter: sepia(0.3) contrast(1.1) brightness(0.95) saturate(0.85); }
+        .filter-pastel { filter: brightness(1.1) contrast(0.9) saturate(1.2) hue-rotate(-10deg); }
+        .filter-dream { filter: grayscale(100%) contrast(1.1) brightness(1.1); }
+        .filter-sunset { filter: sepia(0.25) saturate(1.4) hue-rotate(-15deg) contrast(1.05); }
+        .filter-y2k { filter: contrast(1.25) saturate(1.5) brightness(1.05); }
+        .filter-clean { filter: contrast(1.05) brightness(1.05) saturate(0.95); }
+
+        /* Background Frame Patterns */
+        .bg-pattern-dots {
+            background-image: radial-gradient(#FFB6C1 1px, transparent 1px);
+            background-size: 12px 12px;
+        }
+        .bg-pattern-hearts {
+            background-color: #FFF0F5;
+            background-image: radial-gradient(#FFB6C1 0.75px, transparent 0.75px), radial-gradient(#FFB6C1 0.75px, #FFF0F5 0.75px);
+            background-size: 15px 15px;
+            background-position: 0 0, 7.5px 7.5px;
+        }
+        .bg-pattern-glitter {
+            background: linear-gradient(135deg, #FFF0F5 0%, #FFE4E1 50%, #E6E6FA 100%);
+        }
+
+        /* Mirror Mode */
+        .mirror-video {
+            transform: scaleX(-1);
+        }
+
+        /* Sticker Canvas element wrapper */
+        .sticker-item {
+            cursor: move;
+            user-select: none;
+            touch-action: none;
+        }
+
+        /* Custom Shutter Flash Overlay */
+        #flashOverlay {
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-pastelPink via-cozyCream to-girlyPurple min-h-screen font-sans text-gray-700 antialiased overflow-x-hidden relative flex flex-col justify-between">
+
+    <!-- Floating Background Decorative Elements -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div class="absolute top-10 left-[8%] text-roseGold/20 text-4xl animate-float-slow">✨</div>
+        <div class="absolute top-1/4 right-[5%] text-softBlush/40 text-5xl animate-float-slow" style="animation-delay: 1s;">🎀</div>
+        <div class="absolute bottom-20 left-[5%] text-girlyPurple/50 text-6xl animate-float-slow" style="animation-delay: 2s;">💖</div>
+        <div class="absolute bottom-1/3 right-[12%] text-roseGold/30 text-3xl animate-float-slow" style="animation-delay: 1.5s;">🌸</div>
+        <div class="absolute top-1/2 left-[2%] text-softBlush/30 text-4xl animate-float-slow" style="animation-delay: 0.5s;">⭐</div>
+    </div>
+
+    <!-- Shutter Flash Overlay -->
+    <div id="flashOverlay" class="fixed inset-0 bg-white opacity-0 z-50 transition-opacity duration-100 pointer-events-none"></div>
+
+    <!-- Header Navigation -->
+    <header class="relative z-10 w-full px-6 py-4 flex items-center justify-between glass-panel sticky top-0 rounded-b-2xl">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-softBlush to-roseGold flex items-center justify-center text-white shadow-md shadow-softBlush/50">
+                <i class="fa-solid me-0.5 fa-camera-retro text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-cursive text-3xl font-bold text-roseGold tracking-wide leading-tight">Cozy Studio</h1>
+                <p class="text-xs text-roseGold/70 font-medium tracking-wider uppercase -mt-1">Aesthetic 4K Photobooth</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <span id="resolutionBadge" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span id="resText">4K Ultra HD</span>
+            </span>
+            <button id="soundToggleBtn" onclick="toggleAudio()" class="p-2.5 rounded-full bg-white/80 hover:bg-white text-roseGold border border-roseGold/20 shadow-sm transition-all hover:scale-105 active:scale-95">
+                <i id="soundIcon" class="fa-solid fa-volume-high text-sm"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="relative z-10 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 flex-grow">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+
+            <!-- LEFT COLUMN: Camera Stream & Live Controls (7 cols) -->
+            <section class="lg:col-span-7 flex flex-col gap-5">
+                <!-- Video Viewport Glass Card -->
+                <div class="glass-panel rounded-3xl p-4 sm:p-5 relative shadow-xl overflow-hidden border border-white/80">
+                    
+                    <!-- Top Overlay Info Bar -->
+                    <div class="absolute top-7 left-7 right-7 z-20 flex justify-between items-center pointer-events-none">
+                        <span class="bg-black/40 backdrop-blur-md text-white text-xs px-3 py-1.5 rounded-full font-medium flex items-center gap-2 border border-white/20">
+                            <i class="fa-solid fa-circle text-red-400 text-[8px] animate-pulse"></i> LIVE PREVIEW
+                        </span>
+                        <div class="flex items-center gap-2 pointer-events-auto">
+                            <button onclick="toggleMirror()" class="p-2 rounded-full bg-black/40 backdrop-blur-md text-white/90 hover:text-white hover:bg-black/60 transition-all border border-white/20" title="Flip Mirror">
+                                <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Countdown Display Overlay -->
+                    <div id="countdownOverlay" class="absolute inset-0 z-30 bg-black/30 backdrop-blur-sm flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+                        <span id="countdownText" class="font-fun text-9xl font-bold text-white drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] transform scale-50 transition-transform duration-300">3</span>
+                    </div>
+
+                    <!-- Camera View Box -->
+                    <div class="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-gray-900 shadow-inner flex items-center justify-center group">
+                        <video id="webcam" autoplay playsinline class="w-full h-full object-cover mirror-video filter-normal transition-all duration-300"></video>
+                        <canvas id="captureCanvas" class="hidden"></canvas>
+
+                        <!-- Error State Placeholder -->
+                        <div id="cameraError" class="hidden absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-rose-50 text-rose-800">
+                            <i class="fa-solid fa-video-slash text-4xl text-roseGold mb-3"></i>
+                            <h3 class="font-bold text-lg">Camera Access Needed</h3>
+                            <p class="text-xs max-w-xs mt-1 text-roseGold/80">Please allow camera permissions in your browser to start taking cute 4K photos!</p>
+                            <button onclick="initCamera()" class="mt-4 px-4 py-2 bg-roseGold text-white rounded-full text-xs font-semibold shadow-md hover:bg-roseGold/90 transition-all">Retry Camera</button>
+                        </div>
+                    </div>
+
+                    <!-- Live Filters Ribbon -->
+                    <div class="mt-4">
+                        <label class="block text-xs font-semibold text-roseGold/80 mb-2 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-wand-magic-sparkles text-roseGold"></i> Aesthetic Presets
+                        </label>
+                        <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+                            <button onclick="setFilter('filter-normal')" class="filter-btn active px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-700 border border-roseGold/30 shadow-sm hover:border-roseGold transition-all whitespace-nowrap">Natural ✨</button>
+                            <button onclick="setFilter('filter-softglow')" class="filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-700 border border-roseGold/30 shadow-sm hover:border-roseGold transition-all whitespace-nowrap">Soft Glow 🌸</button>
+                            <button onclick="setFilter('filter-pastel')" class="filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-700 border border-roseGold/30 shadow-sm hover:border-roseGold transition-all whitespace-nowrap">Pastel Rose 💖</button>
+                            <button onclick="setFilter('filter-vintage')" class="filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-700 border border-roseGold/30 shadow-sm hover:border-roseGold transition-all whitespace-nowrap">Vintage Film 🎞️</button>
+                            <button onclick="setFilter('filter-sunset')" class="filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-700 border border-roseGold/30 shadow-sm hover:border-roseGold transition-all whitespace-nowrap">Warm Sunset 🌅</button>
+                            <button onclick="setFilter('filter-y2k')" class="filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-700 border border-roseGold/30 shadow-sm hover:border-roseGold transition-all whitespace-nowrap">Y2K Flash ⚡</button>
+                            <button onclick="setFilter('filter-dream')" class="filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-700 border border-roseGold/30 shadow-sm hover:border-roseGold transition-all whitespace-nowrap">Dreamy B&W ☁️</button>
+                            <button onclick="setFilter('filter-clean')" class="filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-700 border border-roseGold/30 shadow-sm hover:border-roseGold transition-all whitespace-nowrap">Clean Aesthetic 🌿</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session Control Panel -->
+                <div class="glass-panel rounded-3xl p-5 shadow-lg border border-white/80">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                        <!-- Mode Selector -->
+                        <div>
+                            <label class="block text-xs font-semibold text-roseGold/80 mb-1.5 uppercase tracking-wider">Shoot Mode</label>
+                            <div class="grid grid-cols-2 gap-1 p-1 bg-white/70 rounded-2xl border border-roseGold/20">
+                                <button id="modeSingleBtn" onclick="setShootMode('single')" class="py-2 rounded-xl text-xs font-bold text-roseGold bg-pastelPink shadow-sm transition-all">Single Shot</button>
+                                <button id="modeStripBtn" onclick="setShootMode('strip')" class="py-2 rounded-xl text-xs font-bold text-gray-500 hover:text-roseGold transition-all">4-Strip Mode</button>
+                            </div>
+                        </div>
+
+                        <!-- Timer Selector -->
+                        <div>
+                            <label class="block text-xs font-semibold text-roseGold/80 mb-1.5 uppercase tracking-wider">Timer Delay</label>
+                            <div class="grid grid-cols-3 gap-1 p-1 bg-white/70 rounded-2xl border border-roseGold/20">
+                                <button onclick="setTimerSec(3)" class="timer-btn active py-2 rounded-xl text-xs font-bold text-roseGold bg-pastelPink transition-all">3s</button>
+                                <button onclick="setTimerSec(5)" class="timer-btn py-2 rounded-xl text-xs font-bold text-gray-500 hover:text-roseGold transition-all">5s</button>
+                                <button onclick="setTimerSec(10)" class="timer-btn py-2 rounded-xl text-xs font-bold text-gray-500 hover:text-roseGold transition-all">10s</button>
+                            </div>
+                        </div>
+
+                        <!-- Resolution Dropdown/Indicator -->
+                        <div>
+                            <label class="block text-xs font-semibold text-roseGold/80 mb-1.5 uppercase tracking-wider">Cam Quality</label>
+                            <select id="resSelect" onchange="changeResolution(this.value)" class="w-full py-2 px-3 bg-white/90 rounded-2xl border border-roseGold/20 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-softBlush">
+                                <option value="4k" selected>✨ 4K Ultra HD (3840x2160)</option>
+                                <option value="1080p">💎 1080p Full HD (1920x1080)</option>
+                                <option value="720p">🌸 720p Standard (1280x720)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Capture Action Button -->
+                    <button id="captureBtn" onclick="startPhotoSession()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-softBlush via-roseGold to-dustyRose text-white font-fun font-semibold text-lg tracking-wider shadow-lg shadow-softBlush/50 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-3 relative overflow-hidden group">
+                        <span class="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
+                        <i class="fa-solid fa-camera text-xl animate-bounce"></i>
+                        <span id="captureBtnText">TAKE PHOTOS ✨</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN: Photo Strip Preview & Customizer (5 cols) -->
+            <section class="lg:col-span-5 flex flex-col gap-5">
+                <div class="glass-panel rounded-3xl p-5 shadow-xl border border-white/80 flex flex-col items-center">
+                    
+                    <div class="w-full flex items-center justify-between mb-4 pb-2 border-b border-roseGold/10">
+                        <h2 class="font-bold text-gray-800 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic text-roseGold"></i> Photo Strip Studio
+                        </h2>
+                        <span class="text-[11px] text-roseGold/70 bg-pastelPink px-2.5 py-0.5 rounded-full font-medium">Interactive Canvas</span>
+                    </div>
+
+                    <!-- Interactive Photo Strip Preview Container -->
+                    <div id="stripOuterWrapper" class="w-full flex justify-center py-2 overflow-auto max-h-[580px]">
+                        <!-- Rendered Canvas Element (Captured photos and custom overlay rendering) -->
+                        <div id="stripCanvasContainer" class="relative shadow-2xl transition-all duration-300 rounded-lg p-4 bg-pastelPink bg-pattern-dots min-w-[240px] max-w-[280px] flex flex-col items-center border border-white/90">
+                            
+                            <!-- Custom Decorative Header Stamp -->
+                            <div class="text-center my-2">
+                                <span id="bannerTextDisplay" class="font-cursive text-xl font-bold text-roseGold tracking-wide">Photobooth Memories ♡</span>
+                            </div>
+
+                            <!-- Photo Slots Container -->
+                            <div id="photosGridContainer" class="w-full flex flex-col gap-3 my-1">
+                                <!-- Photo Slots (Default placeholders) -->
+                                <div class="photo-slot aspect-[4/3] w-full bg-white/60 rounded-md border-2 border-dashed border-roseGold/30 flex flex-col items-center justify-center text-roseGold/40 text-xs gap-1 overflow-hidden relative shadow-inner">
+                                    <i class="fa-regular fa-image text-xl"></i>
+                                    <span>Photo 1</span>
+                                </div>
+                                <div class="photo-slot aspect-[4/3] w-full bg-white/60 rounded-md border-2 border-dashed border-roseGold/30 flex flex-col items-center justify-center text-roseGold/40 text-xs gap-1 overflow-hidden relative shadow-inner">
+                                    <i class="fa-regular fa-image text-xl"></i>
+                                    <span>Photo 2</span>
+                                </div>
+                                <div class="photo-slot aspect-[4/3] w-full bg-white/60 rounded-md border-2 border-dashed border-roseGold/30 flex flex-col items-center justify-center text-roseGold/40 text-xs gap-1 overflow-hidden relative shadow-inner">
+                                    <i class="fa-regular fa-image text-xl"></i>
+                                    <span>Photo 3</span>
+                                </div>
+                                <div class="photo-slot aspect-[4/3] w-full bg-white/60 rounded-md border-2 border-dashed border-roseGold/30 flex flex-col items-center justify-center text-roseGold/40 text-xs gap-1 overflow-hidden relative shadow-inner">
+                                    <i class="fa-regular fa-image text-xl"></i>
+                                    <span>Photo 4</span>
+                                </div>
+                            </div>
+
+                            <!-- Custom Footer Stamp & Date -->
+                            <div class="w-full text-center mt-3 pt-2 border-t border-roseGold/10 flex flex-col items-center">
+                                <p id="dateStampDisplay" class="text-[10px] font-mono tracking-widest text-roseGold/80 uppercase">2026.10.05 • COZY STUDIO</p>
+                                <span class="text-[10px] text-roseGold/50 mt-0.5">✨ ✨ ✨</span>
+                            </div>
+
+                            <!-- Draggable Sticker Layer -->
+                            <div id="stickerLayer" class="absolute inset-0 pointer-events-none overflow-hidden rounded-lg"></div>
+                        </div>
+                    </div>
+
+                    <!-- Customization Tabs / Controls -->
+                    <div class="w-full mt-5 flex flex-col gap-3">
+                        <!-- Frame Style Options -->
+                        <div>
+                            <label class="block text-xs font-semibold text-roseGold/80 mb-1.5 uppercase tracking-wider">Frame Background</label>
+                            <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                                <button onclick="setFrameBg('bg-pastelPink bg-pattern-dots')" class="w-7 h-7 rounded-full bg-pastelPink border-2 border-roseGold/40 flex-shrink-0 shadow-sm focus:ring-2 focus:ring-roseGold" title="Pink Dots"></button>
+                                <button onclick="setFrameBg('bg-white')" class="w-7 h-7 rounded-full bg-white border-2 border-gray-300 flex-shrink-0 shadow-sm focus:ring-2 focus:ring-roseGold" title="Cloud White"></button>
+                                <button onclick="setFrameBg('bg-roseGold text-white')" class="w-7 h-7 rounded-full bg-roseGold border-2 border-roseGold/40 flex-shrink-0 shadow-sm focus:ring-2 focus:ring-roseGold" title="Rose Gold"></button>
+                                <button onclick="setFrameBg('bg-girlyPurple')" class="w-7 h-7 rounded-full bg-girlyPurple border-2 border-purple-300 flex-shrink-0 shadow-sm focus:ring-2 focus:ring-roseGold" title="Lavender"></button>
+                                <button onclick="setFrameBg('bg-amber-50')" class="w-7 h-7 rounded-full bg-amber-50 border-2 border-amber-200 flex-shrink-0 shadow-sm focus:ring-2 focus:ring-roseGold" title="Vintage Cream"></button>
+                                <button onclick="setFrameBg('bg-pattern-hearts')" class="w-7 h-7 rounded-full bg-rose-100 border-2 border-rose-300 flex-shrink-0 shadow-sm focus:ring-2 focus:ring-roseGold" title="Cute Hearts"></button>
+                                <button onclick="setFrameBg('bg-pattern-glitter')" class="w-7 h-7 rounded-full bg-gradient-to-r from-pink-200 to-purple-200 border-2 border-pink-300 flex-shrink-0 shadow-sm focus:ring-2 focus:ring-roseGold" title="Glitter Dream"></button>
+                                <button onclick="setFrameBg('bg-gray-900 text-white')" class="w-7 h-7 rounded-full bg-gray-900 border-2 border-gray-700 flex-shrink-0 shadow-sm focus:ring-2 focus:ring-roseGold" title="Chic Black"></button>
+                            </div>
+                        </div>
+
+                        <!-- Sticker Tray -->
+                        <div>
+                            <label class="block text-xs font-semibold text-roseGold/80 mb-1.5 uppercase tracking-wider">Add Cute Stickers (Click to Add)</label>
+                            <div class="flex items-center gap-1.5 overflow-x-auto p-2 bg-white/70 rounded-2xl border border-roseGold/20">
+                                <button onclick="addSticker('🎀')" class="text-xl hover:scale-125 transition-transform p-1">🎀</button>
+                                <button onclick="addSticker('💖')" class="text-xl hover:scale-125 transition-transform p-1">💖</button>
+                                <button onclick="addSticker('✨')" class="text-xl hover:scale-125 transition-transform p-1">✨</button>
+                                <button onclick="addSticker('🌸')" class="text-xl hover:scale-125 transition-transform p-1">🌸</button>
+                                <button onclick="addSticker('👑')" class="text-xl hover:scale-125 transition-transform p-1">👑</button>
+                                <button onclick="addSticker('🍒')" class="text-xl hover:scale-125 transition-transform p-1">🍒</button>
+                                <button onclick="addSticker('⭐')" class="text-xl hover:scale-125 transition-transform p-1">⭐</button>
+                                <button onclick="addSticker('🧸')" class="text-xl hover:scale-125 transition-transform p-1">🧸</button>
+                                <button onclick="addSticker('💌')" class="text-xl hover:scale-125 transition-transform p-1">💌</button>
+                                <button onclick="clearStickers()" class="text-xs px-2 py-1 bg-rose-100 text-rose-600 rounded-lg font-semibold ml-auto hover:bg-rose-200">Clear</button>
+                            </div>
+                        </div>
+
+                        <!-- Banner Text Input -->
+                        <div>
+                            <label class="block text-xs font-semibold text-roseGold/80 mb-1 uppercase tracking-wider">Banner Caption</label>
+                            <input type="text" id="bannerInput" value="Photobooth Memories ♡" oninput="updateBannerText(this.value)" class="w-full px-3 py-2 bg-white/90 rounded-xl border border-roseGold/20 text-xs font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-softBlush" placeholder="Type custom caption...">
+                        </div>
+
+                        <!-- Action Buttons (Export / Download / Print) -->
+                        <div class="grid grid-cols-2 gap-2 mt-2">
+                            <button onclick="exportPhotoStrip()" class="py-3 px-4 rounded-xl bg-roseGold text-white font-semibold text-xs shadow-md hover:bg-roseGold/90 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-download"></i> Download High-Res
+                            </button>
+                            <button onclick="printPhotoStrip()" class="py-3 px-4 rounded-xl bg-white text-roseGold border border-roseGold/30 font-semibold text-xs shadow-sm hover:bg-rose-50 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-print"></i> Print Strip
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 w-full py-4 text-center text-xs text-roseGold/60 border-t border-roseGold/10 mt-6 glass-panel">
+        <p class="font-medium">Designed with 💕 for photo lovers • 4K High Resolution Canvas Engine</p>
+    </footer>
+
+    <!-- High-Res Hidden Offscreen Canvas for Rendering Ultra HD Export -->
+    <canvas id="exportCanvas" class="hidden"></canvas>
+
+    <script>
+        // Global Application State Variables
+        let videoStream = null;
+        let capturedPhotos = []; // Stores captured high-res image data URLs
+        let activeFilter = 'filter-normal';
+        let shootMode = 'single'; // 'single' or 'strip'
+        let timerSeconds = 3;
+        let isMirror = true;
+        let isAudioMuted = false;
+        let audioCtx = null;
+
+        // Dom Elements
+        const webcam = document.getElementById('webcam');
+        const captureCanvas = document.getElementById('captureCanvas');
+        const exportCanvas = document.getElementById('exportCanvas');
+        const flashOverlay = document.getElementById('flashOverlay');
+        const countdownOverlay = document.getElementById('countdownOverlay');
+        const countdownText = document.getElementById('countdownText');
+        const photosGridContainer = document.getElementById('photosGridContainer');
+        const stripCanvasContainer = document.getElementById('stripCanvasContainer');
+        const stickerLayer = document.getElementById('stickerLayer');
+        const captureBtn = document.getElementById('captureBtn');
+        const captureBtnText = document.getElementById('captureBtnText');
+
+        // Web Audio API Sound Generator for Cute Pops and Shutter Click
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playPopSound() {
+            if (isAudioMuted) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.08);
+            } catch(e) {}
+        }
+
+        function playShutterSound() {
+            if (isAudioMuted) return;
+            try {
+                initAudio();
+                // Play double pop for camera shutter sound effect
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.15);
+            } catch(e) {}
+        }
+
+        function toggleAudio() {
+            isAudioMuted = !isAudioMuted;
+            const icon = document.getElementById('soundIcon');
+            if (isAudioMuted) {
+                icon.className = 'fa-solid fa-volume-xmark text-sm';
+            } else {
+                icon.className = 'fa-solid fa-volume-high text-sm';
+                playPopSound();
+            }
+        }
+
+        // Initialize Webcam Stream with 4K Constraints & Fallbacks
+        async function initCamera(requestedPreset = '4k') {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+
+            let constraints = {
+                video: {
+                    facingMode: 'user',
+                    width: { ideal: 3840 },
+                    height: { ideal: 2160 }
+                },
+                audio: false
+            };
+
+            if (requestedPreset === '1080p') {
+                constraints.video.width = { ideal: 1920 };
+                constraints.video.height = { ideal: 1080 };
+            } else if (requestedPreset === '720p') {
+                constraints.video.width = { ideal: 1280 };
+                constraints.video.height = { ideal: 720 };
+            }
+
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+                webcam.srcObject = videoStream;
+                document.getElementById('cameraError').classList.add('hidden');
+
+                // Check actual stream resolution
+                const track = videoStream.getVideoTracks()[0];
+                const settings = track.getSettings();
+                const resText = document.getElementById('resText');
+                
+                if (settings.width >= 3840) {
+                    resText.innerText = `4K Ultra HD (${settings.width}x${settings.height})`;
+                } else if (settings.width >= 1920) {
+                    resText.innerText = `1080p Full HD (${settings.width}x${settings.height})`;
+                } else {
+                    resText.innerText = `${settings.width || 1280}x${settings.height || 720} HD`;
+                }
+
+            } catch (err) {
+                console.error("Camera access error:", err);
+                document.getElementById('cameraError').classList.remove('hidden');
+            }
+        }
+
+        function changeResolution(value) {
+            playPopSound();
+            initCamera(value);
+        }
+
+        function toggleMirror() {
+            isMirror = !isMirror;
+            if (isMirror) {
+                webcam.classList.add('mirror-video');
+            } else {
+                webcam.classList.remove('mirror-video');
+            }
+            playPopSound();
+        }
+
+        function setFilter(filterClass) {
+            activeFilter = filterClass;
+            webcam.className = `w-full h-full object-cover transition-all duration-300 ${isMirror ? 'mirror-video' : ''} ${filterClass}`;
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-roseGold', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            event.target.classList.add('active', 'bg-roseGold', 'text-white');
+            event.target.classList.remove('bg-white', 'text-gray-700');
+            
+            playPopSound();
+        }
+
+        function setShootMode(mode) {
+            shootMode = mode;
+            const singleBtn = document.getElementById('modeSingleBtn');
+            const stripBtn = document.getElementById('modeStripBtn');
+            
+            if (mode === 'single') {
+                singleBtn.className = "py-2 rounded-xl text-xs font-bold text-roseGold bg-pastelPink shadow-sm transition-all";
+                stripBtn.className = "py-2 rounded-xl text-xs font-bold text-gray-500 hover:text-roseGold transition-all";
+                renderPhotoSlots(1);
+            } else {
+                stripBtn.className = "py-2 rounded-xl text-xs font-bold text-roseGold bg-pastelPink shadow-sm transition-all";
+                singleBtn.className = "py-2 rounded-xl text-xs font-bold text-gray-500 hover:text-roseGold transition-all";
+                renderPhotoSlots(4);
+            }
+            playPopSound();
+        }
+
+        function setTimerSec(sec) {
+            timerSeconds = sec;
+            document.querySelectorAll('.timer-btn').forEach(btn => {
+                btn.classList.remove('active', 'text-roseGold', 'bg-pastelPink');
+                btn.classList.add('text-gray-500');
+            });
+            event.target.classList.add('active', 'text-roseGold', 'bg-pastelPink');
+            event.target.classList.remove('text-gray-500');
+            playPopSound();
+        }
+
+        function renderPhotoSlots(count) {
+            capturedPhotos = [];
+            photosGridContainer.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'photo-slot aspect-[4/3] w-full bg-white/60 rounded-md border-2 border-dashed border-roseGold/30 flex flex-col items-center justify-center text-roseGold/40 text-xs gap-1 overflow-hidden relative shadow-inner';
+                slot.innerHTML = `<i class="fa-regular fa-image text-xl"></i><span>Photo ${i + 1}</span>`;
+                photosGridContainer.appendChild(slot);
+            }
+        }
+
+        // Start Photo Shoot Sequence
+        async function startPhotoSession() {
+            if (!videoStream) return;
+            captureBtn.disabled = true;
+            captureBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            const totalShots = shootMode === 'single' ? 1 : 4;
+            capturedPhotos = [];
+            renderPhotoSlots(totalShots);
+
+            for (let shot = 0; shot < totalShots; shot++) {
+                captureBtnText.innerText = `PHOTO ${shot + 1} OF ${totalShots}...`;
+                await runCountdown(timerSeconds);
+                triggerFlash();
+                playShutterSound();
+                captureSingleFrame(shot);
+                // Pause between multiple shots
+                if (shot < totalShots - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                }
+            }
+
+            captureBtnText.innerText = 'TAKE PHOTOS ✨';
+            captureBtn.disabled = false;
+            captureBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+        }
+
+        // Countdown Timer Overlay Sequence
+        function runCountdown(seconds) {
+            return new Promise((resolve) => {
+                countdownOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                let current = seconds;
+                countdownText.innerText = current;
+                countdownText.style.transform = 'scale(1.2)';
+
+                const interval = setInterval(() => {
+                    playPopSound();
+                    current--;
+                    if (current > 0) {
+                        countdownText.innerText = current;
+                        countdownText.style.transform = 'scale(1.2)';
+                        setTimeout(() => countdownText.style.transform = 'scale(0.8)', 200);
+                    } else {
+                        clearInterval(interval);
+                        countdownOverlay.classList.add('opacity-0', 'pointer-events-none');
+                        resolve();
+                    }
+                }, 1000);
+            });
+        }
+
+        function triggerFlash() {
+            flashOverlay.classList.remove('opacity-0');
+            flashOverlay.classList.add('animate-shutter-flash');
+            setTimeout(() => {
+                flashOverlay.classList.remove('animate-shutter-flash');
+                flashOverlay.classList.add('opacity-0');
+            }, 400);
+        }
+
+        // Capture Canvas Frame with Live Filter applied
+        function captureSingleFrame(index) {
+            const track = videoStream.getVideoTracks()[0];
+            const settings = track.getSettings();
+            
+            // Set canvas size to native webcam stream size for maximum quality
+            const width = settings.width || webcam.videoWidth || 1920;
+            const height = settings.height || webcam.videoHeight || 1080;
+
+            captureCanvas.width = width;
+            captureCanvas.height = height;
+            const ctx = captureCanvas.getContext('2d');
+
+            // Apply Mirror if flipped
+            if (isMirror) {
+                ctx.translate(width, 0);
+                ctx.scale(-1, 1);
+            }
+
+            // Apply active Filter directly on canvas
+            applyCanvasFilter(ctx, activeFilter);
+
+            // Draw video frame onto canvas
+            ctx.drawImage(webcam, 0, 0, width, height);
+
+            // Save High-Res Data URL
+            const photoDataUrl = captureCanvas.toDataURL('image/png', 1.0);
+            capturedPhotos.push(photoDataUrl);
+
+            // Display in Slot Preview
+            const slots = photosGridContainer.children;
+            if (slots[index]) {
+                slots[index].className = 'photo-slot aspect-[4/3] w-full rounded-md overflow-hidden relative shadow-md border border-white';
+                slots[index].innerHTML = `<img src="${photoDataUrl}" class="w-full h-full object-cover">`;
+            }
+        }
+
+        // Canvas Filter mapping for Export rendering
+        function applyCanvasFilter(ctx, filterClass) {
+            switch (filterClass) {
+                case 'filter-softglow':
+                    ctx.filter = 'brightness(1.08) contrast(0.95) saturate(1.1) sepia(0.08)';
+                    break;
+                case 'filter-vintage':
+                    ctx.filter = 'sepia(0.3) contrast(1.1) brightness(0.95) saturate(0.85)';
+                    break;
+                case 'filter-pastel':
+                    ctx.filter = 'brightness(1.1) contrast(0.9) saturate(1.2) hue-rotate(-10deg)';
+                    break;
+                case 'filter-dream':
+                    ctx.filter = 'grayscale(100%) contrast(1.1) brightness(1.1)';
+                    break;
+                case 'filter-sunset':
+                    ctx.filter = 'sepia(0.25) saturate(1.4) hue-rotate(-15deg) contrast(1.05)';
+                    break;
+                case 'filter-y2k':
+                    ctx.filter = 'contrast(1.25) saturate(1.5) brightness(1.05)';
+                    break;
+                case 'filter-clean':
+                    ctx.filter = 'contrast(1.05) brightness(1.05) saturate(0.95)';
+                    break;
+                default:
+                    ctx.filter = 'none';
+            }
+        }
+
+        // Customization Functions
+        function setFrameBg(bgClasses) {
+            // Remove previous bg classes
+            stripCanvasContainer.className = `relative shadow-2xl transition-all duration-300 rounded-lg p-4 border border-white/90 min-w-[240px] max-w-[280px] flex flex-col items-center ${bgClasses}`;
+            playPopSound();
+        }
+
+        function updateBannerText(val) {
+            document.getElementById('bannerTextDisplay').innerText = val || 'Photobooth Memories ♡';
+        }
+
+        // Add Interactive Draggable Sticker
+        function addSticker(emoji) {
+            playPopSound();
+            const sticker = document.createElement('div');
+            sticker.className = 'sticker-item absolute text-3xl pointer-events-auto select-none transition-transform active:scale-110';
+            sticker.innerText = emoji;
+            sticker.style.left = '40%';
+            sticker.style.top = '40%';
+
+            // Simple drag logic
+            let isDragging = false;
+            let startX, startY, initialLeft, initialTop;
+
+            const onPointerDown = (e) => {
+                isDragging = true;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                startX = clientX;
+                startY = clientY;
+                initialLeft = sticker.offsetLeft;
+                initialTop = sticker.offsetTop;
+                sticker.style.zIndex = '100';
+            };
+
+            const onPointerMove = (e) => {
+                if (!isDragging) return;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const dx = clientX - startX;
+                const dy = clientY - startY;
+                sticker.style.left = `${initialLeft + dx}px`;
+                sticker.style.top = `${initialTop + dy}px`;
+            };
+
+            const onPointerUp = () => {
+                isDragging = false;
+            };
+
+            sticker.addEventListener('mousedown', onPointerDown);
+            sticker.addEventListener('touchstart', onPointerDown);
+            document.addEventListener('mousemove', onPointerMove);
+            document.addEventListener('touchmove', onPointerMove);
+            document.addEventListener('mouseup', onPointerUp);
+            document.addEventListener('touchend', onPointerUp);
+
+            stickerLayer.appendChild(sticker);
+        }
+
+        function clearStickers() {
+            stickerLayer.innerHTML = '';
+            playPopSound();
+        }
+
+        // Render High-DPI Output for Export/Print
+        async function exportPhotoStrip() {
+            if (capturedPhotos.length === 0) {
+                alert('Please take some photos first! ✨');
+                return;
+            }
+
+            playPopSound();
+
+            // Export Canvas Specs (High Definition Ultra 4K scale width ~1200px)
+            const exportWidth = 1200;
+            const photoAspect = 4 / 3;
+            const photoWidth = 1040;
+            const photoHeight = photoWidth / photoAspect;
+            const photoGap = 40;
+            const headerHeight = 220;
+            const footerHeight = 160;
+
+            const count = capturedPhotos.length;
+            const exportHeight = headerHeight + footerHeight + (count * photoHeight) + ((count + 1) * photoGap);
+
+            exportCanvas.width = exportWidth;
+            exportCanvas.height = exportHeight;
+            const ctx = exportCanvas.getContext('2d');
+
+            // Draw Background Frame Color
+            ctx.fillStyle = '#FFF0F5'; // Pastel Pink Default
+            ctx.fillRect(0, 0, exportWidth, exportHeight);
+
+            // Draw Header Banner Text
+            ctx.fillStyle = '#B76E79';
+            ctx.font = 'bold 64px "Sacramento", cursive';
+            ctx.textAlign = 'center';
+            const caption = document.getElementById('bannerInput').value || 'Photobooth Memories ♡';
+            ctx.fillText(caption, exportWidth / 2, 140);
+
+            // Draw Captured Photos
+            for (let i = 0; i < count; i++) {
+                const img = new Image();
+                img.src = capturedPhotos[i];
+                await new Promise(r => img.onload = r);
+
+                const yPos = headerHeight + photoGap + i * (photoHeight + photoGap);
+                const xPos = (exportWidth - photoWidth) / 2;
+
+                // White border card frame behind photo
+                ctx.fillStyle = '#FFFFFF';
+                ctx.shadowColor = 'rgba(0,0,0,0.08)';
+                ctx.shadowBlur = 15;
+                ctx.fillRect(xPos - 10, yPos - 10, photoWidth + 20, photoHeight + 20);
+                ctx.shadowBlur = 0;
+
+                ctx.drawImage(img, xPos, yPos, photoWidth, photoHeight);
+            }
+
+            // Draw Footer Stamp
+            ctx.fillStyle = '#B76E79';
+            ctx.font = 'bold 28px monospace';
+            ctx.textAlign = 'center';
+            const dateStr = document.getElementById('dateStampDisplay').innerText;
+            ctx.fillText(dateStr, exportWidth / 2, exportHeight - 60);
+
+            // Download Trigger
+            const link = document.createElement('a');
+            link.download = `photobooth-strip-${Date.now()}.png`;
+            link.href = exportCanvas.toDataURL('image/png', 1.0);
+            link.click();
+        }
+
+        function printPhotoStrip() {
+            if (capturedPhotos.length === 0) {
+                alert('Please take some photos first! ✨');
+                return;
+            }
+            window.print();
+        }
+
+        // Initialize App on Page Load
+        window.onload = () => {
+            initCamera();
+            // Set current date
+            const today = new Date();
+            const formattedDate = `${today.getFullYear()}.${(today.getMonth() + 1).toString().padStart(2, '0')}.${today.getDate().toString().padStart(2, '0')} • COZY STUDIO`;
+            document.getElementById('dateStampDisplay').innerText = formattedDate;
+        };
+    </script>
+</body>
+</html>
